@@ -1,5 +1,5 @@
 import "package:flutter/material.dart";
-import "./aquams.dart";
+import "aquams.dart";
 
 void main() {
   runApp(const App());
@@ -11,7 +11,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: const HomePage(),
+      home: const Aquams(),
       theme: ThemeData(
         useMaterial3: true,
       ),

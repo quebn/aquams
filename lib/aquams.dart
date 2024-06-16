@@ -1,57 +1,80 @@
 import "package:flutter/material.dart";
+import "structure/module.dart";
 
-// TODO:
-// [*] Create Navigation.
-// [*] Clean and Create simple container for a list component.
+// TODO: Major
+// [ ] Modules.
+// [ ] Analytics.
+// [ ] Home.
+// [ ] Session.
+// [ ] Profile.
+
+// TODO: Minor
 // [ ] Add new item to list view with popup to input the value.
 // [ ] Add popup to view to edit the list.
 // [ ] Make created list persist.
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class Aquams extends StatefulWidget {
+  const Aquams({super.key});
+
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<Aquams> createState() => _AquamsState();
 }
 
-class _HomePageState extends State<HomePage> {
-  int currentPageIndex = 0;
-  List<Widget> todoList = <Widget>[];
-  @override
-  Widget build(BuildContext context) {
+class _AquamsState extends State<Aquams> {
+  int currentTab = 0;
+  int currentModule = 0;
+
+  final List<Module> modules = const <Module>[
+    Module("Area"),
+    Module("Accounting"),
+    Module("Inventory"),
+    Module("Purchase"),
+    Module("Sale"),
+    Module("HR"),
+    Module("Fixed Asset"),
+    Module("Project"),
+  ];
+
+  @override Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
+        leading: getLeading(context),
+        title: const Text("AquaMs"),
+        actions: getActions(context),
       ),
-      floatingActionButton: FloatingActionButton(
-        elevation: 4,
-        backgroundColor: Colors.lightBlue,
-        shape: const CircleBorder(),
-        onPressed: () {
-          setState(() {
-            addItems(currentPageIndex);
-          });
-        },
-        child: const Icon(Icons.add_sharp),
+      drawer: Drawer(
+        child: getDrawerContent(context),
       ),
-      //floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: getFloatingActionButton(context),
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
           setState(() {
-            currentPageIndex = index;
+            currentTab = index;
           });
         },
         indicatorColor: Colors.blue,
-        selectedIndex: currentPageIndex,
-        destinations: navbarNavigations,
+        selectedIndex: currentTab,
+        destinations: getNavigations(),
       ),
       body: <Widget>[
         homePage(theme.textTheme.titleLarge),
         modulesPage(theme.textTheme.titleLarge),
         reportsPage(theme.textTheme.titleLarge),
-        todoPage(theme.textTheme.titleLarge),
-      ][currentPageIndex],
+        profilePage(theme.textTheme.titleLarge),
+      ][currentTab],
     );
   }
+
+  // NOTE: AquaMS file should only be responsible
+  //  of the events of the ff. app functions:
+  //    - Handle Floating Bar
+  //    - Switch Tab
+  //    - Handle Drawer
+  //    - Search
+  //  and store the ff. data:
+  //    - Current State:
+  //    - Default View Data
 
   Widget homePage(TextStyle? textStyle) {
     return Card(
@@ -68,32 +91,30 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget todoPage(TextStyle? textStyle) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(8.0),
-      itemCount: todoList.length,
-      itemBuilder: (BuildContext context, int index) {
-        return GestureDetector(
-          onTap: () {
-            print("Tapped $index");
-          },
-          child: todoList[index],
-        );
-      },
+  Widget profilePage(TextStyle? textStyle) {
+    return Card(
+      shadowColor: Colors.transparent,
+      margin: const EdgeInsets.all(8.0),
+      child: SizedBox.expand(
+        child: Center(
+          child: Text(
+            "Profile",
+            style: textStyle,
+          ),
+        ),
+      ),
     );
   }
 
   final List<Widget> list = <Widget>[
     const Card(
       child: ListTile(
-        leading: Icon(Icons.notifications_sharp),
         title: Text("Module 1"),
         subtitle: Text("This is a module"),
       ),
     ),
     const Card(
       child: ListTile(
-        leading: Icon(Icons.notifications_sharp),
         title: Text("Module 2"),
         subtitle: Text("This is a another module"),
       ),
@@ -113,13 +134,6 @@ class _HomePageState extends State<HomePage> {
         );
       },
     );
-    //return const Padding(
-    //  padding: EdgeInsets.all(8.0),
-    //  child: Column(
-    //    children: <Widget>[
-    //    ],
-    //  ),
-    //);
   }
 
   Widget reportsPage(TextStyle? textStyle) {
@@ -137,50 +151,100 @@ class _HomePageState extends State<HomePage> {
     );
   }
   
-  void addItems(int currentIndex) {
-    switch (currentIndex) {
-      case 3:
-        addTodoItem();
-        print(todoList.length);
-        break;
-      default:
-        return;
-    }
+  List<Widget> getActions(BuildContext context){
+    return <Widget>[
+      IconButton(
+        icon: const Icon(Icons.search_outlined),
+        onPressed: (){
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Clicked Search Button")));
+        },
+      ),
+      IconButton(
+        icon: const Icon(Icons.notifications_sharp),
+        onPressed: (){
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Clicked Notifications Button")));
+        },
+      ),
+    ];
   }
 
-  void addTodoItem() {
-    todoList.insert(0,
-      Card(
-        child: ListTile(
-          leading: const Icon(Icons.task_rounded),
-          title: Text("ToDo Item ${todoList.length + 1}"),
-          subtitle: const Text("this a todo item!"),
-        ),
-      ),
+  Widget getLeading(BuildContext context){
+    return Builder(
+      builder: (context){
+        return getLeadingButton(context);
+      },
     );
   }
+
+  Widget getLeadingButton(BuildContext context){
+    return IconButton(
+      icon: const Icon(Icons.density_medium_sharp),
+      onPressed: (){
+        Scaffold.of(context).openDrawer();
+      },
+    );
+  }  
+
+  List<Widget> getNavigations(){
+    return const <Widget>[
+      NavigationDestination(
+        selectedIcon: Icon(Icons.home),
+        icon: Icon(Icons.home_outlined),
+        label: "Home",
+      ),
+      NavigationDestination(
+        selectedIcon: Icon(Icons.library_books_sharp),
+        icon: Icon(Icons.library_books_outlined),
+        label: "Modules",
+      ),
+      NavigationDestination(
+        selectedIcon: Icon(Icons.bar_chart),
+        icon: Icon(Icons.bar_chart_outlined), 
+        label: "Reports",
+      ),
+      NavigationDestination(
+        selectedIcon: Icon(Icons.person_sharp),
+        icon: Icon(Icons.person_outlined),
+        label: "Profile",
+      ),
+    ];
+  }
+
+  Widget? getDrawerContent(BuildContext context){
+    if (currentTab != 1){
+      return null;
+    }
+    return ListView.builder(
+      padding: const EdgeInsets.all(8.0),
+      itemCount: modules.length,
+      itemBuilder: (BuildContext context, int index) {
+        return GestureDetector(
+          onTap: () {
+            print("Tapped $index");
+          },
+          child: modules[index].getView(),
+        );
+      },
+    );
+  }
+  
+  Widget? getFloatingActionButton(BuildContext context){
+    switch (currentTab){
+      default:
+        return null;
+    }
+    //return FloatingActionButton(
+    //  elevation: 4,
+    //  backgroundColor: Colors.lightBlue,
+    //  shape: const CircleBorder(),
+    //  onPressed: () {
+    //    setState(() {
+    //      print("Pressed on PageIndex: $currentTab!");
+    //    });
+    //  },
+    //  child: const Icon(Icons.add_sharp),
+    //);
+  }
 }
-
-const List<Widget> navbarNavigations = <Widget>[
-  NavigationDestination(
-    selectedIcon: Icon(Icons.home),
-    icon: Icon(Icons.home_outlined),
-    label: "Home",
-  ),
-  NavigationDestination(
-    selectedIcon: Icon(Icons.library_books_sharp),
-    icon: Icon(Icons.library_books_outlined),
-    label: "Modules",
-  ),
-  NavigationDestination(
-    selectedIcon: Icon(Icons.bar_chart),
-    icon: Icon(Icons.bar_chart_outlined), 
-    label: "Reports",
-  ),
-  NavigationDestination(
-    selectedIcon: Icon(Icons.task),
-    icon: Icon(Icons.task_outlined),
-    label: "To Do",
-  ),
-];
-
