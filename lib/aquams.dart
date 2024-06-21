@@ -122,17 +122,17 @@ class _AquamsState extends State<Aquams> {
     
   ];
   Widget modulesPage(TextStyle? textStyle) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(8.0),
-      itemCount: list.length,
-      itemBuilder: (BuildContext context, int index) {
-        return GestureDetector(
-          onTap: () {
-            print("Tapped $index");
-          },
-          child: list[index],
-        );
-      },
+    return Card(
+      shadowColor: Colors.transparent,
+      margin: const EdgeInsets.all(8.0),
+      child: SizedBox.expand(
+        child: Center(
+          child: Text(
+            modules[currentModule].name,
+            style: textStyle,
+          ),
+        ),
+      ),
     );
   }
 
@@ -222,9 +222,12 @@ class _AquamsState extends State<Aquams> {
       itemBuilder: (BuildContext context, int index) {
         return GestureDetector(
           onTap: () {
-            print("Tapped $index");
+            setState(() {
+                currentModule = index;
+            });
+            Scaffold.of(context).closeDrawer();
           },
-          child: modules[index].getView(),
+          child: modules[index].getView(currentModule == index),
         );
       },
     );

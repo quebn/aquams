@@ -1,28 +1,32 @@
 import "package:flutter/material.dart";
 
 
-class Module{
+class Module {
   final String name;
-  
+  final List<String> docs = const[];
+
   const Module(this.name);
 
-  Widget getView(){
+  Widget getView(bool selected){
     return ListTile(
       title: Text(name),
-      leading: _moduleIcons[name]?["outline"],
+      selected: selected,
+      leading: _getIcon("outline"),
+      selectedColor: Colors.black,
+      selectedTileColor: Colors.blue,
     );
   }
 
-  Widget? getIcon(){
+  Widget? _getIcon(String icon){
     if (!_moduleIcons.containsKey(name)){
-      return _moduleIcons["Default"]?["outline"];
+      return _moduleIcons["Default"]?[icon];
     }
-    return _moduleIcons[name]?["outline"];
+    return _moduleIcons[name]?[icon];
   }
 }
 
 
-const _moduleIcons = <String, Map<String, Widget>>{
+const Map<String, Map<String, Widget>> _moduleIcons = {
   "Area": {
     "selected": Icon(Icons.water_rounded),
     "outline": Icon(Icons.water_outlined),
@@ -59,5 +63,4 @@ const _moduleIcons = <String, Map<String, Widget>>{
     "selected": Icon(Icons.feed),
     "outline": Icon(Icons.feed_outlined)
   }
-
 };
