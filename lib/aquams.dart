@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
-import "structure/module.dart";
+import "core/module.dart";
+import "accounting/module_view.dart";
 
 // TODO: Major
 // [ ] Modules.
@@ -44,6 +45,9 @@ class _AquamsState extends State<Aquams> {
         actions: getActions(context),
       ),
       drawer: Drawer(
+        //elevation: 0,
+        surfaceTintColor: Colors.white,
+        width: 250.0,
         child: getDrawerContent(context),
       ),
       floatingActionButton: getFloatingActionButton(context),
@@ -59,7 +63,7 @@ class _AquamsState extends State<Aquams> {
       ),
       body: <Widget>[
         homePage(theme.textTheme.titleLarge),
-        modulesPage(theme.textTheme.titleLarge),
+        modulesPage(context),
         reportsPage(theme.textTheme.titleLarge),
         profilePage(theme.textTheme.titleLarge),
       ][currentTab],
@@ -106,32 +110,28 @@ class _AquamsState extends State<Aquams> {
     );
   }
 
-  final List<Widget> list = <Widget>[
-    const Card(
-      child: ListTile(
-        title: Text("Module 1"),
-        subtitle: Text("This is a module"),
-      ),
-    ),
-    const Card(
-      child: ListTile(
-        title: Text("Module 2"),
-        subtitle: Text("This is a another module"),
-      ),
-    ),
-    
-  ];
-  Widget modulesPage(TextStyle? textStyle) {
-    return Card(
-      shadowColor: Colors.transparent,
-      margin: const EdgeInsets.all(8.0),
-      child: SizedBox.expand(
-        child: Center(
-          child: Text(
-            modules[currentModule].name,
-            style: textStyle,
-          ),
-        ),
+  Widget modulesPage(BuildContext context) {
+    //Handles Modules View
+    return PageView(
+      children: <Widget>[
+        tempDisplay(context, "Area"),
+        accountingModule(context), 
+        tempDisplay(context, "Inventory"),
+        tempDisplay(context, "Purchase"),
+        tempDisplay(context, "Sale"),
+        tempDisplay(context, "HR"),
+        tempDisplay(context, "Fixed Asset"),
+        tempDisplay(context, "Project"),
+      ],
+    );
+  }
+
+  Widget tempDisplay(BuildContext context, String text){
+    final ThemeData theme = Theme.of(context);
+    return Center(
+      child: Text(
+        text,
+        style: theme.textTheme.titleLarge,
       ),
     );
   }
@@ -216,20 +216,24 @@ class _AquamsState extends State<Aquams> {
     if (currentTab != 1){
       return null;
     }
-    return ListView.builder(
-      padding: const EdgeInsets.all(8.0),
-      itemCount: modules.length,
-      itemBuilder: (BuildContext context, int index) {
-        return GestureDetector(
-          onTap: () {
-            setState(() {
-                currentModule = index;
-            });
-            Scaffold.of(context).closeDrawer();
-          },
-          child: modules[index].getView(currentModule == index),
-        );
-      },
+    var statusBar = MediaQuery.of(context).viewPadding.top;
+    return Container(
+      margin: EdgeInsets.only(top: statusBar),
+      child: ListView.builder(
+        padding: EdgeInsets.zero,
+        itemCount: modules.length,
+        itemBuilder: (BuildContext context, int index) {
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                  currentModule = index;
+              });
+              Scaffold.of(context).closeDrawer();
+            },
+            child: modules[index].getView(currentModule == index),
+          );
+        },
+      )
     );
   }
   

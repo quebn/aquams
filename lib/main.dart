@@ -2,11 +2,11 @@ import "package:flutter/material.dart";
 import "aquams.dart";
 
 void main() {
-  runApp(const App());
+  runApp(const AquamsApp());
 }
 
-class App extends StatelessWidget {
-  const App({super.key});
+class AquamsApp extends StatelessWidget {
+  const AquamsApp({super.key});
 
   @override
   Widget build(BuildContext context) {
