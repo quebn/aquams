@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:flutter/foundation.dart";
 import "core/module.dart";
 import "accounting/module_view.dart";
 
@@ -14,6 +15,16 @@ import "accounting/module_view.dart";
 // [ ] Add popup to view to edit the list.
 // [ ] Make created list persist.
 
+// NOTE: AquaMS file should only be responsible
+//  of the events of the ff. app functions:
+//    - Handle Floating Bar
+//    - Switch Tab
+//    - Handle Drawer
+//    - Search
+//  and store the ff. data:
+//    - Current State:
+//    - Default View Data
+
 class Aquams extends StatefulWidget {
   const Aquams({super.key});
 
@@ -24,6 +35,7 @@ class Aquams extends StatefulWidget {
 class _AquamsState extends State<Aquams> {
   int currentTab = 0;
   int currentModule = 0;
+  final PageController _pageController = PageController();
 
   final List<Module> modules = const <Module>[
     Module("Area"),
@@ -36,12 +48,35 @@ class _AquamsState extends State<Aquams> {
     Module("Project"),
   ];
 
-  @override Widget build(BuildContext context) {
+  bool get isNotMobile{
+    if (kIsWeb) {
+      return true;
+    }
+    switch (defaultTargetPlatform){
+      case TargetPlatform.macOS:
+      case TargetPlatform.linux:
+      case TargetPlatform.windows:
+        return true;
+      case TargetPlatform.android:
+      case TargetPlatform.iOS:
+      case TargetPlatform.fuchsia:
+        return false;
+    }
+  }
+
+  @override
+  void dispose(){
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override 
+  Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         leading: getLeading(context),
-        title: const Text("AquaMs"),
+        title: getTitle(context),
         actions: getActions(context),
       ),
       drawer: Drawer(
@@ -70,15 +105,12 @@ class _AquamsState extends State<Aquams> {
     );
   }
 
-  // NOTE: AquaMS file should only be responsible
-  //  of the events of the ff. app functions:
-  //    - Handle Floating Bar
-  //    - Switch Tab
-  //    - Handle Drawer
-  //    - Search
-  //  and store the ff. data:
-  //    - Current State:
-  //    - Default View Data
+  Widget getTitle(BuildContext context){
+    if (currentTab == 1){
+      return Text(modules[currentModule].name);
+    }
+    return const Text("Aquams");   
+  }
 
   Widget homePage(TextStyle? textStyle) {
     return Card(
@@ -113,6 +145,8 @@ class _AquamsState extends State<Aquams> {
   Widget modulesPage(BuildContext context) {
     //Handles Modules View
     return PageView(
+      controller: _pageController,
+      onPageChanged: _onPageSwap, 
       children: <Widget>[
         tempDisplay(context, "Area"),
         accountingModule(context), 
@@ -124,6 +158,18 @@ class _AquamsState extends State<Aquams> {
         tempDisplay(context, "Project"),
       ],
     );
+  }
+
+  void _onPageSwap(int currentPage){
+    if (isNotMobile){
+      return;
+    }
+    setState(() {
+      currentModule = currentPage;
+    });
+  }
+
+  void _updatePageIndex(BuildContext context){
   }
 
   Widget tempDisplay(BuildContext context, String text){
@@ -227,6 +273,7 @@ class _AquamsState extends State<Aquams> {
             onTap: () {
               setState(() {
                   currentModule = index;
+                  _pageController.jumpToPage(currentModule);
               });
               Scaffold.of(context).closeDrawer();
             },
@@ -242,16 +289,5 @@ class _AquamsState extends State<Aquams> {
       default:
         return null;
     }
-    //return FloatingActionButton(
-    //  elevation: 4,
-    //  backgroundColor: Colors.lightBlue,
-    //  shape: const CircleBorder(),
-    //  onPressed: () {
-    //    setState(() {
-    //      print("Pressed on PageIndex: $currentTab!");
-    //    });
-    //  },
-    //  child: const Icon(Icons.add_sharp),
-    //);
   }
 }
